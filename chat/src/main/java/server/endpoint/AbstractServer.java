@@ -1,22 +1,23 @@
 package server.endpoint;
 
+import client.ClientThread;
 import files.Files;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import messages.MessagesBroker;
 
 public abstract class AbstractServer implements IServerEndpoint {
-    private int port;
-    private String host;
-    private static Socket clientSocket;
-    private static ServerSocket server;
-    private static BufferedReader in;
-    private static BufferedWriter out;
+    private static int port;
+    private static String host;
+
+
+    private static boolean isConnected = false;
 
     public int getPort() {
         return this.port;
@@ -26,53 +27,58 @@ public abstract class AbstractServer implements IServerEndpoint {
         return this.host;
     }
 
-    public void connnect() throws IOException {
+
+//    protected void broadcast(String message) {
+//
+//      //  ArrayList<ServerThread> clientsCopy;
+////        synchronized (this.clientThreadsList) {
+////            clientsCopy = new ArrayList<>(this.clientThreadsList);
+////        }
+//        for (ServerThread socketThread : MessagesBroker.getClients()) {
+//            socketThread.sendMessage(message);
+//        }
+//    }
+
+    protected void connect() throws IOException {
 
         initConfig();
 
-        System.out.println("Server started");
-        //Scanner scanner = new Scanner(System.in);
-
-        MessagesBroker mq = new MessagesBroker();
-
         try (ServerSocket server = new ServerSocket(port)) {
+            System.out.println("Server connected on ");// + this.getHost() + ":" + this.getPort());
+
             while (true) {
-                try (Socket clientSocket = server.accept();
-                     BufferedReader socketIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                     PrintWriter socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
-                ) {
 
-                   // out.write("Hello client! Write your name : \n");
-                   // out.flush();
-                    String message = socketIn.readLine();
+                Socket clientSocket = server.accept();
+                System.out.println("User login");
 
-                    //System.out.println(message);
-                    mq.broadcast("{}");
-                    //out.write();
-
-                    out.flush();
-
-                }
+                ServerThread serverThread = new ServerThread(clientSocket, Server.getInstance());
+                serverThread.start();
+                MessagesBroker.subscribe(serverThread);
             }
 
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
     }
 
-    private void initConfig() {
+    public static boolean getIsConnected() {
+        return isConnected;
+    }
+
+    private static void initConfig() {
         String content = Files.read(System.getProperty("user.dir") + "/app/configs/configs.json");
 
         JsonObject jsonObject = new JsonParser().parse(content).getAsJsonObject();
-        this.port = jsonObject.getAsJsonObject("chat").get("port").getAsInt();
-        this.host = jsonObject.getAsJsonObject("chat").get("host").getAsString();
+        port = jsonObject.getAsJsonObject("chat").get("port").getAsInt();
+        host = jsonObject.getAsJsonObject("chat").get("host").getAsString();
 
     }
 
-    public void onClose()  throws IOException {
+    public void onClose() throws IOException {
         System.out.println(this.port);
     }
 
-    public void onMessage()  throws IOException {
+    public void onMessage() throws IOException {
         System.out.println(this.port);
     }
 

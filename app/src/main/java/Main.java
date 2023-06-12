@@ -1,23 +1,18 @@
-import auth.Auth;
-import client.Client;
+import java.io.IOException;
+
 import server.endpoint.Server;
 import user.User;
-
-import java.io.IOException;
+import users.ChatUser;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
 
-//        Server server = new Server();
-//        server.run();
-
         User user = User.login();
-        Client client = new Client(
-                user.getId(),
-                user.getName()
-        );
+        ChatUser chatUser = new ChatUser(user.getId(), user.getName());
 
+        Chat.connectClient(chatUser);
     }
+
 
 }

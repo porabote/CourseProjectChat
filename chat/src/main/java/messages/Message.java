@@ -10,6 +10,22 @@ public class Message {
     private String senderName;
     private String recipientName;
     private String content;
-    private Date timestamp;
+    private String timestamp;
     private MessageStatus status;
+
+    public String getRecipientName() {
+        return this.recipientName;
+    }
+
+    public String getSenderName() {
+        return this.senderName;
+    }
+
+    public String getContent() {
+        return this.content;
+    }
+
+    public String getTimestamp() {
+        return this.timestamp;
+    }
 }

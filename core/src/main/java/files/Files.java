@@ -58,8 +58,8 @@ public class Files {
 
         try {
             if (f.canWrite()) { //canRead, canExecute
-                FileWriter writer = new FileWriter(f);
-              //  writer.write(Logger.get(), 0, content.length());
+                FileWriter writer = new FileWriter(f, true);
+                writer.write(content, 0, content.length());
                 writer.flush();
                 writer.close();
             } else {
