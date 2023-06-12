@@ -1,13 +1,17 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import messages.Message;
+import messages.MessageBuilder;
 import users.ChatUser;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 
 public class ClientThread extends Thread {
@@ -15,8 +19,6 @@ public class ClientThread extends Thread {
     private BufferedReader reader;
     private BufferedWriter writer;
     private ChatUser user;
-
-    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
     public ClientThread(Socket socket, ChatUser user) throws IOException {
         this.socket = socket;
@@ -34,10 +36,10 @@ public class ClientThread extends Thread {
                 while (true) {
                     serverMsg = this.reader.readLine();
 
-                    Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                    Gson gson = new GsonBuilder().setDateFormat("yyyy-MMM-dd HH:mm:ss").create();
                     Message message = gson.fromJson(serverMsg, Message.class); // deserializes json into target2
 
-                    System.out.println(message.getSenderName() + " : " + message.getContent() + "  " + message.getTimestamp() + "\n");
+                    System.out.println(message.getSenderName() + " : " + message.getContent() + "  " + message.getFormatedTimestamp() + "\n");
                 }
 
             } catch (IOException e) {
@@ -47,8 +49,13 @@ public class ClientThread extends Thread {
         }).start();
 
         try {
-            String message = "{\"content\": \"Hello i'm hear \", \"senderName\": " + this.user.getName() + ", \"timestamp\": \"" + LocalDateTime.now() + "\"}";
-            this.writer.write(message + "\n");
+
+            Message message = new MessageBuilder()
+                    .setSenderName(this.user.getName())
+                    .setContent("Hello i'm hear")
+                    .setTimestamp(new Timestamp(System.currentTimeMillis()).getTime())
+                    .create();
+            this.writer.write(message.toJson() + "\n");
             this.writer.flush();
 
         } catch (IOException e) {
@@ -61,9 +68,13 @@ public class ClientThread extends Thread {
                 while (true) {
                     userInput = stdIn.readLine();
 
-                    String message = "{\"content\": \"" + userInput + "\", \"senderName\": " + this.user.getName() + ", \"timestamp\": \"" + LocalDateTime.now() + "\"}";
+                    Message message = new MessageBuilder()
+                            .setSenderName(this.user.getName())
+                            .setContent(userInput)
+                            .setTimestamp(new Timestamp(System.currentTimeMillis()).getTime())
+                            .create();
 
-                    this.writer.write(message + "\n");
+                    this.writer.write(message.toJson() + "\n");
                     this.writer.flush();
                 }
             } catch (IOException e) {

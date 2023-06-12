@@ -6,9 +6,6 @@ import server.endpoint.ServerThread;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class MessagesBroker {
 
@@ -41,7 +38,7 @@ public class MessagesBroker {
     }
 
     public void push(String unparsedMsg) {
-        Message msg = new Message();
+        //Message msg = new Message();
     }
 
 }
