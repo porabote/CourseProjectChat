@@ -1,5 +1,5 @@
 ## Client - Server application
-Simple messenger for teminal connections between several clients.
+Simple messenger for terminal connections between several clients.
 
 ### For run serveer
 > ./chat/src/main/java/server/Main.java
