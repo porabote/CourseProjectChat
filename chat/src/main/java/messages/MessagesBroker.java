@@ -1,13 +1,14 @@
 package messages;
 
 import files.Files;
-import messages.Message;
-import server.endpoint.ServerThread;
+import server.ServerThread;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class MessagesBroker {
+
+    private static String LOG_FILE_PATH = System.getProperty("user.dir") + "/app/storage/chat.messages.json";
 
     private static ArrayList<ServerThread> clients = new ArrayList<>();
 
@@ -27,14 +28,14 @@ public class MessagesBroker {
 
         log(msgIn);
 
-        System.out.println(msgIn);
         for (ServerThread socketThread : MessagesBroker.getClients()) {
             socketThread.sendMessage(msgIn);
         }
     }
 
     private static void log(String msgIn) throws IOException {
-        Files.write(System.getProperty("user.dir") + "/app/storage/chat-log.json", msgIn + "\n");
+        System.out.println(msgIn);
+        Files.write(LOG_FILE_PATH, msgIn + "\n");
     }
 
     public void push(String unparsedMsg) {

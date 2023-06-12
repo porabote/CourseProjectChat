@@ -9,10 +9,6 @@ import users.ChatUser;
 import java.io.*;
 import java.net.Socket;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Map;
 
 public class ClientThread extends Thread {
     private Socket socket;

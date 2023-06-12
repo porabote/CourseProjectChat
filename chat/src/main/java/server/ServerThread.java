@@ -1,4 +1,4 @@
-package server.endpoint;
+package server;
 
 import messages.MessagesBroker;
 
@@ -7,13 +7,11 @@ import java.net.Socket;
 
 public class ServerThread extends Thread {
     private Socket socket;
-    private Server server;
     private BufferedReader reader;
     private BufferedWriter writer;
 
-    public ServerThread(Socket socket, Server server) throws IOException {
+    public ServerThread(Socket socket) throws IOException {
         this.socket = socket;
-        this.server = server;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
@@ -32,25 +30,11 @@ public class ServerThread extends Thread {
 
     public void run() {
         try {
-
-            InputStream input = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-            OutputStream output = socket.getOutputStream();
-            PrintWriter writer = new PrintWriter(output, true);
-
-
-            String message;
-
-            do {
-                message = reader.readLine();
-                MessagesBroker.broadcast(message);
-            } while (!message.equals("exit"));
-
+            Server.getInstance().onMessage(socket);
             socket.close();
+            Server.getInstance().onClose(socket);
         } catch (IOException ex) {
-            System.out.println("Server exception: " + ex.getMessage());
-            ex.printStackTrace();
+            Server.getInstance().onError(ex);
         }
     }
 }
